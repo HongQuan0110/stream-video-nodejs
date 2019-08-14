@@ -1,5 +1,5 @@
 function openStream() {
-    const config  = { video: true };
+    const config  = { audio: true, video: true };
     if (navigator.mediaDevices.getDisplayMedia) {
         return navigator.mediaDevices.getDisplayMedia(config);
     } else {
@@ -13,7 +13,20 @@ function playStream(idVIideo, stream){
     video.play();
 }
 
-openStream().then(stream => {
-    console.log(stream);
-    playStream("localStream", stream)
+const peer = new Peer();
+
+peer.on('open', id => {
+    $("#my-peer").append(id);
+})
+
+$(document).ready(function(){
+    var btnOpenStream = document.getElementById('btnOpenStream');
+    btnOpenStream.addEventListener('click', () => {
+        openStream().then(stream => {
+            playStream("localStream", stream)
+            peer.on('call', call => {
+                call.answer(stream);
+            })
+        })
+    })
 })
